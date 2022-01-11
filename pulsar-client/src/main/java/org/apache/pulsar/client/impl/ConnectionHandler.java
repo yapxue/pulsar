@@ -29,6 +29,11 @@ import org.apache.pulsar.client.impl.HandlerState.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * one prodcuer/consumer has one ConnectionHandler.
+ * it hold ClientCnx(a connection) for a producer/consumer, grabCnx() will get a connection from ConnectionPool
+ * then bind it to p/c.
+ */
 public class ConnectionHandler {
     private static final AtomicReferenceFieldUpdater<ConnectionHandler, ClientCnx> CLIENT_CNX_UPDATER =
             AtomicReferenceFieldUpdater.newUpdater(ConnectionHandler.class, ClientCnx.class, "clientCnx");

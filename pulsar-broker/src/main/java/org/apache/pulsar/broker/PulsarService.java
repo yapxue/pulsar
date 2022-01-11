@@ -238,6 +238,7 @@ public class PulsarService implements AutoCloseable {
     private PrometheusMetricsServlet metricsServlet;
     private List<PrometheusRawMetricsProvider> pendingMetricsProviders;
 
+    // it is a MetadataClient, connect to zk and query/update metadata.
     private MetadataStoreExtended localMetadataStore;
     private CoordinationService coordinationService;
     private TransactionBufferSnapshotService transactionBufferSnapshotService;
@@ -871,6 +872,7 @@ public class PulsarService implements AutoCloseable {
         leaderElectionService.start();
     }
 
+    //TODO: what is SLA Namespace ?
     protected void acquireSLANamespace() {
         try {
             // Namespace not created hence no need to unload it

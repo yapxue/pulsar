@@ -322,6 +322,7 @@ public class NamespaceService implements AutoCloseable {
      * @throws PulsarServerException
      * @throws Exception
      */
+    // in pulsar, namespace is owned by broker.
     public boolean registerNamespace(String namespace, boolean ensureOwned) throws PulsarServerException {
 
         String myUrl = pulsar.getSafeBrokerServiceUrl();

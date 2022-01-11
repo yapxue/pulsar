@@ -30,6 +30,11 @@ import org.apache.pulsar.client.api.MessageId;
 import org.apache.pulsar.client.impl.conf.ConsumerConfigurationData;
 import static org.apache.pulsar.client.impl.UnAckedMessageTracker.addChunkedMessageIdsAndRemoveFromSequnceMap;
 
+/**
+ * nack tracker is similar as unack tracker,
+ * difference is it has a timestamp for each message and client cache this message until this time.
+ * once timeout, they will send REDELIVER_UNACKNOWLEDGED_MESSAGES command to broker.
+ */
 class NegativeAcksTracker {
 
     private HashMap<MessageId, Long> nackedMessages = null;

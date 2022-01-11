@@ -1586,6 +1586,7 @@ public class ProducerImpl<T> extends ProducerBase<T> implements TimerTask, Conne
                 if (diff <= 0) {
                     // The diff is less than or equal to zero, meaning that the message has been timed out.
                     // Set the callback to timeout on every message, then clear the pending queue.
+                    // TODO: why fail every message if first message timeout ?
                     log.info("[{}] [{}] Message send timed out. Failing {} messages", topic, producerName,
                             pendingMessages.size());
 
