@@ -99,6 +99,13 @@ import org.apache.pulsar.common.util.collections.ConcurrentLongHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @yapxue
+ * ClientCnx -> PulsarHandler -> Netty Handler
+ * it is a netty handler, as a handler, it is added to Channel on initiazation, see PulsarChannelInitializer.
+ * it can represent a TCP connection.
+ * producers/consumers may use the same connection.
+ */
 @SuppressWarnings("unchecked")
 public class ClientCnx extends PulsarHandler {
 

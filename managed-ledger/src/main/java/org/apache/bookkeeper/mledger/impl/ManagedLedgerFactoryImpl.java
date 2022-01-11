@@ -470,6 +470,7 @@ public class ManagedLedgerFactoryImpl implements ManagedLedgerFactory {
             return;
         }
         checkArgument(startPosition instanceof PositionImpl);
+        // TODO: why open cursor need to create new ML ?
         ReadOnlyManagedLedgerImpl roManagedLedger = new ReadOnlyManagedLedgerImpl(this,
                 bookkeeperFactory
                         .get(new EnsemblePlacementPolicyConfig(config.getBookKeeperEnsemblePlacementPolicyClassName(),

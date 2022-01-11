@@ -319,6 +319,7 @@ public class NamespaceService implements AutoCloseable {
      * @throws PulsarServerException
      * @throws Exception
      */
+    // in pulsar, namespace is owned by broker.
     public boolean registerNamespace(NamespaceName nsname, boolean ensureOwned) throws PulsarServerException {
         try {
             NamespaceBundle nsFullBundle = null;
