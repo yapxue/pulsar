@@ -147,6 +147,8 @@ public class PersistentDispatcherSingleActiveConsumer extends AbstractDispatcher
         }));
     }
 
+    // this method is invoked after read Entries from ML.
+    // obj is Consumer object.
     public synchronized void internalReadEntriesComplete(final List<Entry> entries, Object obj) {
         Consumer readConsumer = (Consumer) obj;
         if (log.isDebugEnabled()) {

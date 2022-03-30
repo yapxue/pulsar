@@ -190,6 +190,7 @@ public class NamespaceService implements AutoCloseable {
     public CompletableFuture<Optional<LookupResult>> getBrokerServiceUrlAsync(TopicName topic, LookupOptions options) {
         long startTime = System.nanoTime();
 
+        // get bundles by namespace from zk, then
         CompletableFuture<Optional<LookupResult>> future = getBundleAsync(topic)
                 .thenCompose(bundle -> findBrokerServiceUrl(bundle, options));
 
@@ -323,6 +324,7 @@ public class NamespaceService implements AutoCloseable {
      * @throws Exception
      */
     // in pulsar, namespace is owned by broker.
+    // 03-05, above assumption is wrong, it only happens for bootstrap name, system namespace.
     public boolean registerNamespace(String namespace, boolean ensureOwned) throws PulsarServerException {
 
         String myUrl = pulsar.getSafeBrokerServiceUrl();

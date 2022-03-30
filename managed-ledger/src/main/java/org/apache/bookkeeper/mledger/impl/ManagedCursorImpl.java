@@ -569,6 +569,7 @@ public class ManagedCursorImpl implements ManagedCursor {
         return result.entries;
     }
 
+    // ctx is Consumer object.
     @Override
     public void asyncReadEntries(final int numberOfEntriesToRead, final ReadEntriesCallback callback,
             final Object ctx, PositionImpl maxPosition) {
@@ -1096,6 +1097,7 @@ public class ManagedCursorImpl implements ManagedCursor {
         }, null);
     }
 
+    // reset Cursor, impl function like kafka seek.
     @Override
     public void asyncResetCursor(Position newPos, AsyncCallbacks.ResetCursorCallback callback) {
         checkArgument(newPos instanceof PositionImpl);
