@@ -419,6 +419,7 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
         }
     }
 
+    // entrance of handle lookup request.
     @Override
     protected void handleLookup(CommandLookupTopic lookup) {
         final long requestId = lookup.getRequestId();
@@ -915,6 +916,7 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
         }
     }
 
+    // entrance of subscribe.
     @Override
     protected void handleSubscribe(final CommandSubscribe subscribe) {
         checkArgument(state == State.Connected);
@@ -1565,6 +1567,7 @@ public class ServerCnx extends PulsarHandler implements TransportCnx {
         }
     }
 
+    // entrance of handle consume request.
     @Override
     protected void handleFlow(CommandFlow flow) {
         checkArgument(state == State.Connected);

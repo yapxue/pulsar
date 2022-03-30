@@ -531,6 +531,7 @@ message CommandSendError {
     required string message     = 4;
 }
 
+//TODO: @yapxue why CommandMessage has ackSet ??
 message CommandMessage {
     required uint64 consumer_id       = 1;
     required MessageIdData message_id = 2;

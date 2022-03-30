@@ -431,6 +431,7 @@ public class PersistentTopic extends AbstractTopic implements Topic, AddEntryCal
                 break;
             case Dup:
                 // Immediately acknowledge duplicated message
+                // ledgerId=-1, entryId=-1 means dupliated message in pulsar.
                 publishContext.completed(null, -1, -1);
                 decrementPendingWriteOpsAndCheck();
                 break;

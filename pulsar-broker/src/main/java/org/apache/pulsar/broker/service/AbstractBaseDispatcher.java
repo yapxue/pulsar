@@ -127,6 +127,7 @@ public abstract class AbstractBaseDispatcher implements Dispatcher {
                 isReplayRead, consumer);
     }
 
+    // handle delay delivery.
     public int filterEntriesForConsumer(Optional<EntryWrapper[]> entryWrapper, int entryWrapperOffset,
              List<Entry> entries, EntryBatchSizes batchSizes, SendMessageInfo sendMessageInfo,
              EntryBatchIndexesAcks indexesAcks, ManagedCursor cursor, boolean isReplayRead, Consumer consumer) {

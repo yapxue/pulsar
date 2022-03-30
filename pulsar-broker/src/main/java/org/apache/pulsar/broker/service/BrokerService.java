@@ -1352,6 +1352,7 @@ public class BrokerService implements Closeable {
         return topicFuture;
     }
 
+    // createPersistentTopic.
     private void createPersistentTopic(final String topic, boolean createIfMissing,
                                        CompletableFuture<Optional<Topic>> topicFuture,
                                        Map<String, String> properties) {
