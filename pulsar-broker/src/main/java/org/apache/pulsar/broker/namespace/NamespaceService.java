@@ -440,6 +440,7 @@ public class NamespaceService implements AutoCloseable {
                 return null;
             });
 
+            // why remove it from map ? map holds in_processing calls.
             future.whenComplete((r, t) -> pulsar.getExecutor().execute(
                 () -> targetMap.remove(bundle)
             ));
