@@ -89,3 +89,32 @@ If so, it open a LedgerHandle implmented by LedgerOffloader provider.
 {"serviceUrl":"http://192.168.1.7:8080"}
 ```
 
+## 06-21
+* pulsar client config
+  * enableTransaction
+  * memoryLimitBytes: The 64M default can guarantee a high producer throughput.
+
+* pulsar webService
+  * impl of PulsarWebResource can see path and logic of rest api.
+  * PulsarService.addWebServerHandlers
+  
+* reader is based on non-persitent subscription, so what's the initial position?
+
+
+## 06-22
+* pulsar zk /admin/{tenant}/{ns} saved policies of tenent and namespace.
+* How to crud tenant/ns? 
+>BaseResources -> MetadataCache -> MetadataStore. MetadataStore has impls of etcd,rocksdb,zk.
+>> BaseResource VS BaseResources (They are different, one is for admin client request, one is for server storage)
+* CoordinatorService has lockManagers(map of <class, LockManagerImpl(metastore, class, executor)>)
+>lockManager.listLocks(path) -> MetadataCache.getChildren(path) -> MetadataStore.getChildren(path)
+* ModularLoadManagerImpl impls listBrokers, it use coordinatorService.getLockManager -> lockManager.listLocks.
+* MetadataStore contains
+  * tenant: path is /admin/policies/{tenant}
+  * namespace: path is /admin/policies/{tenant}/{ns}
+  * brokers: path is /loadbalance/brokers
+
+* where is topic metadata stored?
+* why two clusters register broker to same path /loadbalance/brokers?
+* consumer has a config ackReceiptEnabled, if it is false sometimes you use ackAsync().whenComplete(), it is not really compeleted 
+ because pulsar use ackGroupTracker.

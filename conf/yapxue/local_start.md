@@ -8,6 +8,9 @@ org.apache.pulsar.PulsarBrokerStarter
 * empty metadataStoreUrl will fallback to zookeeperservers, empty configMetadataStoreUrl will fallback to metadatStoreUrl 
 * metadtaStore can also be etcd, rocksdb.
 
+## tips
+* conf bookkeeperMetadataServiceUri is the root zk path of bk.
+
 ## zk data
 * get /loadbalance/broker-time-average/192.168.1.7:8080
 ```
@@ -83,6 +86,11 @@ java.net.ConnectException: Connection refused
 2022-05-20T17:24:04,097+0800 WARN  [main] o.a.p.b.p.ProtocolHandlerUtils@83 - Protocol handler directory not found {}
 ```
 * TODO: who initialized MetadataDrivers? 
+```
+PulsarService has a ManagedLedgerStorage (impl is ManagedLedgerClientFactory),
+ManagedLedgerClientFactory hold resources including (ManagedLedgerFactory, ManagedLedgerConfig, bkClient), init method will setup 
+these resources, initialize bkClient will init MetadataDrivers.
+```
 * it has a list of all bookies and try to build EnsembleReplacementPolicy by bookie's rack.
 * it maybe use zkserver:2181/ledgers to find bookie list.
 ```
@@ -102,11 +110,15 @@ java.net.ConnectException: Connection refused
 2022-05-20T17:24:04,405+0800 WARN  [main-EventThread] o.a.b.c.TopologyAwareEnsemblePlacementPolicy@567 - Failed to resolve network location for 192.168.1.7, using default rack for it : /default-rack. {}
 2022-05-20T17:24:04,405+0800 INFO  [main-EventThread] o.a.b.n.NetworkTopologyImpl@426 - Adding a new node: /default-rack/192.168.1.7:52088 {}
 ```
+
+* others
+```
 2022-05-20T17:24:04,555+0800 INFO  [main] o.a.b.m.i.EntryCacheManager@73 - Initialized managed-ledger entry cache of 819.0 Mb {}
 2022-05-20T17:24:04,869+0800 INFO  [main] o.a.p.b.a.AuthorizationService@65 - org.apache.pulsar.broker.authorization.PulsarAuthorizationProvider has been loaded. {}
 2022-05-20T17:24:04,919+0800 INFO  [main] o.a.p.b.a.AuthenticationService@83 - Authentication is disabled {}
 2022-05-20T17:24:05,588+0800 INFO  [main] o.a.p.b.s.BrokerService@364 - Disabling per broker unack-msg blocking due invalid unAckMsgSubscriptionPercentageLimitOnBrokerBlocked 0.16  {}
 2022-05-20T17:24:05,725+0800 INFO  [main] o.a.p.b.PulsarService@1074 - Starting name space service, bootstrap namespaces=[] {}
+```
 
 * it comes gain.
 ```
