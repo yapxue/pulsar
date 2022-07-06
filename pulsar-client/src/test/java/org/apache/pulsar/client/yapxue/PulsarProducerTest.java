@@ -26,36 +26,38 @@ public class PulsarProducerTest {
         PulsarClient client = buildClient();
         Map<String, String> schemaProps = new HashMap();
         schemaProps.put("app", "bes2testapp");
-        Producer<LogRecord> producer = client.newProducer(JSONSchema.of(LogRecord.class, schemaProps))
-                .intercept(new MyInterceptor())
-                .topic("numsg/yapxue/logger")
-                .create();
+//        Producer<LogRecord> producer = client.newProducer(JSONSchema.of(LogRecord.class, schemaProps))
+//                .intercept(new MyInterceptor())
+//                .topic("public/default/logger")
+//                .create();
         Consumer<LogRecord> consumer = client.newConsumer(JSONSchema.of(LogRecord.class, schemaProps))
                 .subscriptionName("test")
                 .isAckReceiptEnabled(true)
                 .intercept(new ConsumerInterceptor())
-                .topic("numsg/yapxue/logger")
+                .topic("public/default/logger")
                 .subscribe();
         final int total = 10;
         final CountDownLatch latch = new CountDownLatch(total);
-        new Thread(() -> {
-            try {
-                for (int i=0;i<total;i++) {
-                    MessageId id = producer.send(LogRecord.buildDefault());
-                    log.info("sent {}", id);
-                }
-            } catch (PulsarClientException e) {
-                log.error("produce failed {}", e.getMessage(), e);
-            }
-        }).start();
+//        new Thread(() -> {
+//            try {
+//                for (int i=0;i<total;i++) {
+//                    MessageId id = producer.send(LogRecord.buildDefault());
+//                    log.info("sent {}", id);
+//                }
+//            } catch (PulsarClientException e) {
+//                log.error("produce failed {}", e.getMessage(), e);
+//            }
+//        }).start();
 
         new Thread(() -> {
             while (latch.getCount() > 0) {
                 try {
                     Message<LogRecord> message = consumer.receive();
-                    consumer.acknowledgeAsync(message).whenComplete((v, e) -> {
-                        latch.countDown();
-                    });
+                    if (message.getSequenceId() % 2 == 0) {
+                        consumer.acknowledgeAsync(message).whenComplete((v, e) -> {
+                            latch.countDown();
+                        });
+                    }
                 } catch (PulsarClientException e) {
                     log.error("consume failed {}", e.getMessage(), e);
                 }

@@ -231,3 +231,10 @@ WARNING: All illegal access operations will be denied in a future release
 2022-05-20T17:27:10,387+0800 INFO  [pulsar-load-manager-1-1] o.a.p.b.l.i.ModularLoadManagerImpl@616 - Only 1 broker available: no load shedding will be performed {}
 ```
 
+
+## PulsarStandaloneStyarter
+* zk data is stored in data/standaloneß.
+* main class org.apache.pulsar.PulsarStandaloneStarter
+* args: -c conf/standalone.conf --no-functions-worker 
+* env: log4j.shutdownHookEnabled=false;PULSAR_STANDALONE_USE_ZOOKEEPER=1
+

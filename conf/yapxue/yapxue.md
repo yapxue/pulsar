@@ -41,6 +41,7 @@
 * For a given CompletableFuture f. f.thenRun(runnable), runnable is executed after f is completed.
 * CompletableFuture.run(r1).thenRun(r2). CompletableFuture.run(r1) create a f1 and run r1 then f1.complete().
 If you add .thenRun(r2), it create a new CompletableFuture f2. When f1 complete, it run r2 then complete f2.
+* f.join(), it wait result of f.
   
 
 ## 05-15
@@ -94,6 +95,19 @@ If so, it open a LedgerHandle implmented by LedgerOffloader provider.
   * enableTransaction
   * memoryLimitBytes: The 64M default can guarantee a high producer throughput.
 
+* pulsar consumr config
+  * ackTimeoutTickTime: tick time of detect ack timeout.
+  * subscriptionProperties: Properties are immutable, and consumers under the same subscription will fail to create a subscription if they use different properties.
+  * isAckReceiptEnabled
+  * negativeAckRedeliveryDelay: impled at client side.
+  * receiverQueueSize: 
+  * acknowledgmentGroupTime
+  * replicateSubscriptionState
+  * batchReceivePolicy: max records, max bytes, max wait seconds.
+
+* pulsar broker config (ServerConfiguration)
+  * managedLedgerUnackedRangesOpenCacheSetEnabled: Use Open Range-Set to cache unacked messages (it is memory efficient but it can take more cpu)
+
 * pulsar webService
   * impl of PulsarWebResource can see path and logic of rest api.
   * PulsarService.addWebServerHandlers
@@ -106,15 +120,52 @@ If so, it open a LedgerHandle implmented by LedgerOffloader provider.
 * How to crud tenant/ns? 
 >BaseResources -> MetadataCache -> MetadataStore. MetadataStore has impls of etcd,rocksdb,zk.
 >> BaseResource VS BaseResources (They are different, one is for admin client request, one is for server storage)
-* CoordinatorService has lockManagers(map of <class, LockManagerImpl(metastore, class, executor)>)
+* CoordinationService has lockManagers(map of <class, LockManagerImpl(metastore, class, executor)>)
 >lockManager.listLocks(path) -> MetadataCache.getChildren(path) -> MetadataStore.getChildren(path)
-* ModularLoadManagerImpl impls listBrokers, it use coordinatorService.getLockManager -> lockManager.listLocks.
+* ModularLoadManagerImpl impls getAvailableBrokers, it use coordinatorService.getLockManager -> lockManager.listLocks.
 * MetadataStore contains
   * tenant: path is /admin/policies/{tenant}
   * namespace: path is /admin/policies/{tenant}/{ns}
   * brokers: path is /loadbalance/brokers
 
 * where is topic metadata stored?
-* why two clusters register broker to same path /loadbalance/brokers?
+  * A: SystemTopicBasedTopicPoliciesService
+* why two clusters register broker to same path /loadbalance/brokers? 
+  * A: They should use different zk.
 * consumer has a config ackReceiptEnabled, if it is false sometimes you use ackAsync().whenComplete(), it is not really compeleted 
  because pulsar use ackGroupTracker.
+
+* research mc.individualDeletedMessages, it use BitSet to reduce usage of space. 
+    * Can it be persisted? Yes, it is persisted in MetaStore.
+    * when open Cursor, method recover() can recover it.
+    * example: zk path is `/managed-ledgers/...`, ML name `public/default/persistent/logger`, MC name `test`.
+
+## numsg-pulsar
+* subscriptionType default Exlusive? Exlusive cannot loadbalance in numsg server.
+* threadsafe layer is useless since pulsar consumer is threadsafe.
+* consumerInstance get lock failed ?
+
+## 06-27
+* Message has some time property what's their meaning?
+  * brokerPublishTime: brokerTs, persisted in BK.
+  * eventTime: set by users.
+  * publishTime: attached when produce.
+* MessageMetadata includes: producerName(from conf or assigned by broker when connectionOpened), sequenceId(AtomicLong of client), 
+  eventTime, publishTime (set when published), replicatedFrom, replicatedTo, orderingKey, deliverAtTime(like numsg targetDeliveryTime),
+and others.
+* broker entry metadata PIP. https://github.com/apache/pulsar/wiki/PIP-70%3A-Introduce-lightweight-broker-entry-metadata
+* 
+
+## 07-04
+* ConsumerImpl has api hasMessageAvailable, getLastMessageId.
+* PersistentTopic.checkGC() ?
+  * triggerred when broker has corresponding config.
+  * topic level config InactiveTopicPolicies including deleteWhileInactive, maxInactiveDurationSeconds, inactiveTopicDeleteMode(delete_when_no_subscription, delete_when_caughtup)
+  * 
+* ConcurrentOpenLongPairRangeSet, NavigableMap, BitSet
+* PersistentTopic.checkMessageDeduplicationInfo() actually is messageDeduplication.purgeInactiveProducers()
+  * messageDeduplication has map of inactiveProducers, remove when connect, put when disconnect.
+  * if it has in map for some time, producer will be removed and highestSequencedPushed, highestSequencedPersisted will be removed.
+  * highestSequencedPushed is sent to client when producer connect.
+  * So if producer doesn't reconnect for some time, then its sequence is not recovered.
+  * dedup has a cursor, it persist LAC as markDeletePosition and highestSequencedPersisted as property.
