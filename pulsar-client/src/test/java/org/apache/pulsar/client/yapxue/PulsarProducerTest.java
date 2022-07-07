@@ -26,12 +26,13 @@ public class PulsarProducerTest {
         PulsarClient client = buildClient();
         Map<String, String> schemaProps = new HashMap();
         schemaProps.put("app", "bes2testapp");
-//        Producer<LogRecord> producer = client.newProducer(JSONSchema.of(LogRecord.class, schemaProps))
-//                .intercept(new MyInterceptor())
-//                .topic("public/default/logger")
-//                .create();
+        Producer<LogRecord> producer = client.newProducer(JSONSchema.of(LogRecord.class, schemaProps))
+                .intercept(new MyInterceptor())
+                .topic("public/default/logger")
+                .create();
         Consumer<LogRecord> consumer = client.newConsumer(JSONSchema.of(LogRecord.class, schemaProps))
                 .subscriptionName("test")
+                .startMessageIdInclusive()
                 .isAckReceiptEnabled(true)
                 .intercept(new ConsumerInterceptor())
                 .topic("public/default/logger")

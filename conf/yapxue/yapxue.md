@@ -49,7 +49,7 @@ If you add .thenRun(r2), it create a new CompletableFuture f2. When f1 complete,
 * ML has List<LedgerHandle>, MC.readEntries --> ML.readEntries --> find LH and read.
 
 ## 05-19
-* TopicName in string is tenant/cluster/namespace/domain/localName
+* TopicName in string is domain://tenant/cluster/namespace/localName
 * LedgerOffloader.offload(ReadHandle, uuid, Map<>) will offload the ledger,
 LedgerOffloader.streamingOffload(ML, uuid, Map<>) is offloading open ledgers.
 filesystemOffloader donot support streamingoffload.
@@ -94,6 +94,8 @@ If so, it open a LedgerHandle implmented by LedgerOffloader provider.
 * pulsar client config
   * enableTransaction
   * memoryLimitBytes: The 64M default can guarantee a high producer throughput.
+* pulsar client
+  * prodcuerIdGenerator, consumerIdGenerator is AtomicLong.
 
 * pulsar consumr config
   * ackTimeoutTickTime: tick time of detect ack timeout.
@@ -113,6 +115,7 @@ If so, it open a LedgerHandle implmented by LedgerOffloader provider.
   * PulsarService.addWebServerHandlers
   
 * reader is based on non-persitent subscription, so what's the initial position?
+  * define startMessageId in clientBuilder.
 
 
 ## 06-22
@@ -144,6 +147,8 @@ If so, it open a LedgerHandle implmented by LedgerOffloader provider.
 * subscriptionType default Exlusive? Exlusive cannot loadbalance in numsg server.
 * threadsafe layer is useless since pulsar consumer is threadsafe.
 * consumerInstance get lock failed ?
+* consumer.seek(messageId) can only applied to single partition. If messageId is TopicMessageId, will it be supported?
+* producerName is unique ?
 
 ## 06-27
 * Message has some time property what's their meaning?
@@ -158,6 +163,8 @@ and others.
 
 ## 07-04
 * ConsumerImpl has api hasMessageAvailable, getLastMessageId.
+* consumerEventListener listens events of ConsumerImpl, not MultiTopicsConsumerImpl.
+* ServerCnx is per-connection. So it is OK to use consumerId as key of consumersMap.
 * PersistentTopic.checkGC() ?
   * triggerred when broker has corresponding config.
   * topic level config InactiveTopicPolicies including deleteWhileInactive, maxInactiveDurationSeconds, inactiveTopicDeleteMode(delete_when_no_subscription, delete_when_caughtup)
